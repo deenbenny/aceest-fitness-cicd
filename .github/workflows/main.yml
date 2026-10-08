@@ -1,0 +1,30 @@
+name: CI Pipeline
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Lint (syntax errors)
+        run: flake8 . --exclude=legacy --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Compile check
+        run: python -m py_compile app.py
+
+  docker-test:
+    needs: build-lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build Docker image
+        run: docker build -t aceest-fitness:${{ github.sha }} .
+      - name: Run Pytest inside container
+        run: docker run --rm aceest-fitness:${{ github.sha }} pytest
