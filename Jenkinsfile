@@ -76,38 +76,6 @@ pipeline {
             }
         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh '''
-                    docker build \
-                        -t deenbenny/aceest-fitness:v3.2.5 \
-                        -t deenbenny/aceest-fitness:latest \
-                        .
-                '''
-            }
-        }
-
-        stage('Push Docker Image') {
-            steps {
-                withCredentials([
-                    usernamePassword(
-                        credentialsId: 'dockerhub-credentials',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )
-                ]) {
-                    sh '''
-                        echo "$DOCKER_PASS" | docker login \
-                            -u "$DOCKER_USER" --password-stdin
-
-                        docker push $DOCKER_USER/aceest-fitness:v3.2.5
-                        docker push $DOCKER_USER/aceest-fitness:latest
-
-                        docker logout
-                    '''
-                }
-            }
-        }
     }
 
     post {
