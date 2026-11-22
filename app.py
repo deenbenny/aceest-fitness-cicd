@@ -154,6 +154,13 @@ def create_app(db_path=None):
         if not program:
             return jsonify(error="program not found"), 404
         return jsonify(program)
+    
+    @app.route('/version')
+    def version():
+        return jsonify({
+            "application": "ACEest Fitness",
+            "version": os.getenv("APP_VERSION", "unknown")
+        })
 
     @app.post("/login")
     def login():
